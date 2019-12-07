@@ -391,5 +391,71 @@ post = Post.find_by(id:3)
 
     ```
 
-    ## Ⅴ
-    
+## Ⅴ
+- この章ではバリデーションを学ぶ
+  - バリデーションとはデータをチェックする仕組み
+  - バリデーションが規定している制限に引っかかった場合はデータベースに反映されない
+  - モデルでvalidatesメソッドを用いてバリデーションを設定していく
+- 空の文字列をはじくバリデーションを実装する
+```
+validates(制限を記述するカラム名をシンボル形式で, {presence: true})
+```
+- 文字数に上限を規定する
+  - {maximum: 数値}で文字数を指定
+  - 下記の様にバリデーションの指定内容はハッシュで渡すため、複数の指定を繋げて記載できる
+```
+validates :content, {presence: true, length: {maximum: 140}}
+```
+
+- モデルのsaveメソッドは戻り値があり、登録に成功した場合true、失敗した場合falseを返す。この性質を利用して投稿が成功した時と失敗した時で次の画面遷移を制御できる
+```
+def update
+  @post = Post.find_by(id: params[:id])
+  @post.content = params[:content]
+  if @post.save
+    redirect_to("/posts/index")
+  else
+    # renderメソッドを用いて、editアクションを経由せず、posts/edit.html.erbが表示されるようにしてください
+    redirect_to("/posts/#{@post.id}/edit")
+  end
+end
+```
+- **renderメソッドを用いることで別のアクションを経由せずに**ビューを表示できる
+- render("コントローラー名/アクション名")でアクション名と同名のhtml.erbファイルを表示できる
+- 参考:https://qiita.com/1ulce/items/282cccba1e44158489c8
+- @postはrenderで新しく画面描写されるものが維持される(つまり今回はバリデーションではじかれた文字列)
+```
+def update
+  @post = Post.find_by(id: params[:id])
+  @post.content = params[:content]
+  if @post.save
+    redirect_to("/posts/index")
+  else
+    # renderメソッドを用いて、editアクションを経由せず、posts/edit.html.erbが表示されるようにしてください
+    render("posts/edit")
+  end
+end
+```
+- validatesはエラーメッセージを返す。メッセージは@post.errors.full_messagesに配列形式で格納される
+```
+<% @post.errors.full_messages.each do |message| %>
+  <div class="form-error">
+    <%= message %>
+  </div>
+<% end %>
+```
+- フラッシュ
+  - ページ上に1度だけ表示されるメッセージ
+  - Railsではflashという変数を利用する
+  - flash[:notice]に表示したいメッセージを代入することで1度だけ有効になりビューで使用でき、その後は自動で中身が削除される
+```
+#application.html.erbで表示する
+<% if %>
+  <div class="flash">
+    <%=flash[:notice] %>
+  </div>
+<% end %>
+
+```
+
+## Ⅵ
