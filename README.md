@@ -354,4 +354,42 @@ post = Post.find_by(id:3)
   - 投稿を新しい順に並び変える
     - orderメソッドをPost.allに用いる
     - 降順が新しい順になるorder(created_at: :desc)とすればよい
+  
+## Ⅳ
+- 投稿の編集と削除を実装する
+- 投稿データの編集と削除 = データベースのレコードの編集と削除
+- 編集はcontentの値を上書きすればよい
+  ```
+  post = Post.find_by(id:1)
+  post.content = "hello, again!"
+  post.save
+  ```
+  - レコードを更新するとテーブルにupdated_atカラムに値が入力される
+- 削除は**destroyメソッドを用いる**
+  - 削除後にはsaveメソッドは不要
 
+- 編集フォームを作る
+  - 新規投稿時と異なるのは、フォームに既に値が入っている点
+  - データベースから値を取得するため、params[:id]を用いる
+  ```
+  #editアクション
+  @post = Post.find_by(id:params[:id])
+
+  #editビュー
+  <textarea><%=@post.content%></textarea>
+  ```
+  - 編集内容をデータベースに反映する処理を担うupdateアクションを作成する
+    - ルーティングはgetではなくpostメソッドで
+    - postメソッドはform_tagを使用する際に用いる。form_tagの引数にURLを入れてpostメソッドの引数と一致しているときに対応するアクションが呼ばれる
+    - form_tagの引数から受け取ったparams[:id]の値を使用して更新するレコードを指定し、そのcontentをsubmitの際にアクションが受け取るparams[:content] (=contenは<textarea>タグのname属性で指定された文字列)で更新する
+  - 投稿削除もデータベースに変更を生じさせるのでpostメソッド
+    - 削除ボタンをlink_to("削除", "/posts/#{@post.id}/destroy")で作成するとgetメソッドを探してしまう。その為postメソッドでデータベースを更新する為にはlink_toの第三引数に{method: "post"}と**postメソッドの使用を明示的に記述する**必要がある
+    - destroyアクションでの操作は以下
+    ```
+    @post = Post.find_by(id:params[:id])
+    @post.destroy
+
+    ```
+
+    ## Ⅴ
+    
