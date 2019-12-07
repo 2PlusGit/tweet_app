@@ -241,7 +241,7 @@
 
 - テーブルの作り方
   - まずマイグレーションファイルというファイルを作成
-  - postsテーブルを作成する際には、Postとする
+  - postsテーブルを作成する際には、Postとする(テーブル名はモデル名の複数形にする)
   - contextはカラム名、textはデータ型を表す
   ```
   rails g model Post content:text
@@ -263,7 +263,7 @@
 - モデルを使ってテーブルへレコードを格納するにはざっくり以下のような流れになる
   - newメソッドでPostモデルのインスタンスを生成
   ```
-  post1 = Post.new(content:)
+  post1 = Post.new(content:###)
   ```
   - saveメソッドでインスタンスをpostsテーブルへ保存
   ```
