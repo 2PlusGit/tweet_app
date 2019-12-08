@@ -516,3 +516,19 @@ rails g model User name:string email:string
     - binwrite: https://docs.ruby-lang.org/ja/latest/method/IO/s/binwrite.html
   - さらにparams[:image]にreadメソッドを用いた帰り値で保存が可能になる
     - readメソッド: 
+
+## Ⅷ
+- ログイン機能を作る
+- application.html.erbは全てのアクションで呼び出される為、全アクションで共通の処理はapplicationコントローラーに**before_action**として記述する必要がある
+```
+before_action :set_current_user
+  
+def set_current_user
+  @current_user = User.find_by(id: session[:user_id])
+end
+```
+- ログインしていない状態でのアクセス制限はアプリで共通の処理なのでapplicationコントローラーで記述する
+```
+before_action :authenticate_user, {only: [:index, :show, :edit, :update]}
+```
+
