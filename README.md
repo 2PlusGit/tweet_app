@@ -396,6 +396,7 @@ post = Post.find_by(id:3)
   - バリデーションとはデータをチェックする仕組み
   - バリデーションが規定している制限に引っかかった場合はデータベースに反映されない
   - モデルでvalidatesメソッドを用いてバリデーションを設定していく
+  - バリデーションを設定するファイルはapp/models内にある
 - 空の文字列をはじくバリデーションを実装する
 ```
 validates(制限を記述するカラム名をシンボル形式で, {presence: true})
@@ -459,3 +460,59 @@ end
 ```
 
 ## Ⅵ
+- このチャプターではユーザー情報に関する処理を作成する
+- 投稿内容を保存したPostモデルのように、ユーザー情報を格納するUserモデルを作成する
+```
+rails g model User name:string email:string
+
+```
+- バリデーションの値の重複がないかのチェック 
+  - uniqueness: trueをvalidatesの項目に追加する
+- htmlのタグ属性内にrubyを無目混む時にも<%%>でくくる
+
+## Ⅶ
+- 画像を表示する
+- 画像ファイルはpublicフォルダへ保存
+- 画像とアカウントを紐づける画像の名称はモデルに保存
+- モデルにカラムを追加する
+  - rails g modelだと新規にモデルが追加されてしまうので以下のコマンドを叩く
+  - このコマンドでマイグレーションファイルが作成される
+    - マイグレーションファイルとはデータベースの設計図。これをdb:migrateすることでデータベースへ処理が反映される
+  ```
+  rails g migration [マイグレーションファイル名]
+  ```
+    - マイグレーションファイルの中にあるchangeメソッドにテーブルへの変更を記述する
+
+    - カラムを追加する際にはadd_columnメソッドを使う
+    ```
+    add_column [:テーブル名], [:カラム名], [:データ型] 
+    
+    #マイグレーションファイルを反映
+    rails db:migrate
+    ```
+- 画像の表示はimgタグで行う
+  - その際に画像ファイルの場所を記述するため<%%>で保存場所を記入する(publicは省略して記入する、つまり/public/image_user/filename.jpgならば/image_user/filename.jpgのみでよい)
+- フォームで画像を送信する時はform_tagの引数に{multipart: true}を含める
+```
+<%= form_tag("/users/#{@user.id}/update", {multipart: true}) do %>
+  <p>ユーザー名</p>
+  <input name="name" value="<%= @user.name %>">
+  <p>画像</p>
+  <input name="image" type="file">
+  <p>メールアドレス</p>
+  <input name="email" value="<%= @user.email %>">
+  <input type="submit" value="保存">
+<% end %>
+```
+- updateアクションでpublicフォルダへ画像ファイルを作成する
+  - ruby でファイルを扱うにはFileクラスを利用する
+  - ファイルを作成するにはFileクラスのwriteメソッドを使う
+  ```
+  File.write([ファイルを保存したい場所とその拡張し],[ファイルの中身] )
+  ```
+  - form_tagのブロック内で渡された画像ファイルはparams[:image]で受け取ることができる
+  - 画像ファイルはwriteメソッドではなく、binwriteメソッドを用いる
+    - バイナリファイルとは: https://wa3.i-3-i.info/word1147.html
+    - binwrite: https://docs.ruby-lang.org/ja/latest/method/IO/s/binwrite.html
+  - さらにparams[:image]にreadメソッドを用いた帰り値で保存が可能になる
+    - readメソッド: 
