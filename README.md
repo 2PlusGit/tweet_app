@@ -531,4 +531,65 @@ end
 ```
 before_action :authenticate_user, {only: [:index, :show, :edit, :update]}
 ```
+## Ⅸ
+- ユーザーと投稿を紐づける
+- 投稿とユーザーを紐づける
+  - postテーブルにuser_idというカラムを加える
+  - マイグレーションファイルを作る→add_columnでuser_idというカラムをpostsテーブルに追加→validatesでuser_idが空欄が内容に制限
+  - 新規投稿時にPost.newでuser_idを含める
+- 投稿にユーザー情報を表示する
+  - user_idをfind_byしてユーザーを指定する
+- postモデルに投稿したuserの情報を返すメソッドを作成する
+  - app/model/post.rbに作成する
+  - このメソッドを用意することで簡単に投稿したユーザー情報を引き出せる
+- ユーザー情報詳細にそのユーザーの投稿一覧を表示する
+  - ある条件に合致する「複数の」データを取得するには、whereメソッドを用いる必要がある
+  - whereメソッドの戻り値は配列
+  ```
+  Post.where(投稿を指定する条件)
+  ```
+  
+  ## Ⅹ
+  - いいね機能を付ける
+    - 人の投稿にいいねをつける事ができる
+    - 自分がいいねをした投稿を自分の詳細ページで確認できる
+  
+  - likesテーブルを作る
+    - validatesはuser_idとpost_idがどちらも{presence: true}で設定
+  
+  - いいねを作成してみる
+    - rails consoleで試す
+    - like = Like.new(user_id: いいねをした人のid, post_id: いいねされた投稿id)
 
+  - いいねボタンの準備
+    - コマンドではなく主導でlikesコントローラーを作る
+    - likes_controllerの中にcreateメソッドを作成する
+
+  - いいねを取り消すにはdestroyアクションを作成する
+    - controllerにdestroyアクションを定義。中身は@like.destroyするだけ
+  
+  - likeボタンを付ける
+    - fontawesomeから拝借
+    - HTML要素に対してlink_toメソッドを使うには以下の様にブロックで記述する
+    ```
+      <%=link_to("URL") do %>
+        HTML要素を記述
+      <% end %>
+    ```
+
+  - いいねの数を取得する
+    - likesテーブルから該当の投稿に対していくつレコードが保存されてるか数えればよい
+    - 条件の絞り込みはwhereメソッドを使用する
+    - レコードの数を数えるのはcountメソッドをチェインすればよい
+  
+  - いいねした投稿の一覧を表示しよう
+    - userコントローラーにてlikesアクションを作成する
+
+## Ⅺ
+- パスワードの取り扱い
+  - 暗号化
+  - bcryptを使用する
+  - gemfileにインストールしたいgemの名前とバージョンを記述する
+  - gemfileにbcryptを記述しbundle installというコマンドを叩く
+- テーブルのカラムを削除する
+  - remove_column :テーブル名, :カラム名, :カラムの型
